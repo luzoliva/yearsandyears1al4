@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dilemas Morales: Years and Years (Ep. 1-4)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-tech { font-family: 'Space Grotesk', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-rose-500 selection:text-white">
+
+  <!-- CABECERA -->
+  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="bg-rose-600 text-white font-tech font-bold p-1.5 rounded-lg text-lg leading-none shadow">Y&Y</div>
+        <div>
+          <h1 class="font-tech text-base sm:text-lg font-bold tracking-wider text-rose-400 uppercase">Years and Years: Dilemas Morales</h1>
+          <p class="text-[11px] text-slate-400 font-medium">Ética, Biopolítica y Colapso Social · Episodios 1 a 4</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span id="role-badge" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-950 border border-rose-500/30 text-rose-300">Modo Proyector</span>
+        <button id="toggle-role-btn" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-md border border-slate-700 transition">Cambiar Vista</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CUERPO PRINCIPAL -->
+  <main class="flex-grow max-w-7xl mx-auto w-full p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- COLUMNA CENTRAL -->
+    <div id="main-column" class="lg:col-span-8 flex flex-col space-y-6">
+
+      <!-- NAVEGACIÓN RÁPIDA DE CASOS (VISIBLE PARA ALUMNO Y PROFESOR) -->
+      <div class="flex items-center justify-between bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl shadow-sm">
+        <button id="nav-prev-btn" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-semibold rounded-lg border border-slate-700 transition flex items-center space-x-1 disabled:opacity-30 disabled:pointer-events-none">
+          <span>← Anterior</span>
+        </button>
+        <span id="nav-case-indicator" class="font-tech text-xs sm:text-sm font-bold text-rose-400 px-3 py-1 bg-slate-950 rounded-lg border border-slate-800">
+          Caso 1 / 15
+        </span>
+        <button id="nav-next-btn" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-semibold rounded-lg border border-slate-700 transition flex items-center space-x-1 disabled:opacity-30 disabled:pointer-events-none">
+          <span>Siguiente →</span>
+        </button>
+      </div>
+
+      <!-- TARJETA DEL CASO -->
+      <section class="bg-slate-900 rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-800 relative overflow-hidden">
+        <div class="absolute top-0 left-0 h-1.5 w-full bg-gradient-to-r from-rose-600 via-amber-500 to-rose-400"></div>
+        <div class="flex justify-between items-start mb-4">
+          <span id="dilemma-tag" class="text-xs font-bold tracking-widest uppercase bg-rose-950/80 text-rose-300 px-3 py-1 rounded-full border border-rose-800/60 font-tech">Caso 1 de 15</span>
+          <span class="text-xs font-semibold text-slate-400 flex items-center space-x-1.5">
+            <span id="live-indicator" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span id="total-votes-count">0 votos en directo</span>
+          </span>
+        </div>
+        <h2 id="dilemma-title" class="text-xl sm:text-2xl font-bold text-white mb-3 font-tech">Cargando dilema...</h2>
+        <p id="dilemma-desc" class="text-slate-300 text-sm sm:text-base leading-relaxed bg-slate-950/60 p-4 rounded-xl border border-slate-800/80 italic">Cargando situación dramática...</p>
+      </section>
+
+      <!-- OPCIONES -->
+      <section class="space-y-3" id="options-container">
+        <!-- Inyectado dinámicamente -->
+      </section>
+
+      <!-- ACCIONES DEL ESTUDIANTE -->
+      <div id="student-actions" class="hidden flex flex-col space-y-3 pt-2">
+        <button id="submit-vote-btn" class="w-full py-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-base shadow-lg transition-all transform active:scale-98 disabled:opacity-50 font-tech">
+          Confirmar Decisión Moral
+        </button>
+        <button id="student-next-btn" class="hidden w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-300 border border-rose-500/40 font-semibold text-sm transition shadow flex items-center justify-center space-x-2">
+          <span>Pasar al siguiente problema (Caso <span id="student-next-num">2</span>) →</span>
+        </button>
+      </div>
+
+      <!-- ANÁLISIS DE IMPACTO Y CONSECUENCIAS (REVELABLE POR PROFESOR) -->
+      <section id="analysis-card" class="hidden bg-slate-900/90 text-slate-100 p-6 sm:p-7 rounded-2xl border-l-4 border-rose-500 shadow-xl transition-all duration-300 border border-slate-800">
+        <div class="flex items-center space-x-2 text-rose-400 mb-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          <span class="text-xs font-bold uppercase tracking-wider font-tech">Evaluación de Consecuencias y Bienestar Social</span>
+        </div>
+        <h4 id="analysis-title" class="text-lg font-bold text-white mb-2 font-tech"></h4>
+        <p id="analysis-text" class="text-slate-300 text-sm leading-relaxed"></p>
+      </section>
+
+    </div>
+
+    <!-- COLUMNA LATERAL (PROYECTOR & QR) -->
+    <aside id="side-column" class="lg:col-span-4 flex flex-col space-y-6">
+
+      <!-- QR -->
+      <div class="bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-800 text-center">
+        <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider font-tech mb-1">Acceso Móvil Estudiantes</h3>
+        <p class="text-xs text-slate-400 mb-4">Escanea una sola vez para toda la sesión</p>
+        <div class="flex justify-center p-3 bg-white rounded-xl max-w-[220px] mx-auto shadow-inner">
+          <div id="qrcode" class="p-1 bg-white rounded-lg"></div>
+        </div>
+        <p id="qr-url-text" class="text-[11px] font-mono text-slate-500 mt-3 break-all"></p>
+      </div>
+
+      <!-- PANEL DE CONTROL DOCENTE -->
+      <div id="teacher-controls" class="bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-800 space-y-4">
+        <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-2 font-tech">Moderación de Casos</h3>
+        
+        <button id="sync-all-students-btn" class="w-full py-2.5 px-3 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs transition shadow flex items-center justify-center space-x-1.5 font-tech">
+          <span>📡 Traer a todos los alumnos a este caso</span>
+        </button>
+
+        <button id="reveal-analysis-btn" class="w-full py-2.5 px-4 rounded-lg bg-slate-800 hover:bg-slate-700 text-rose-300 border border-rose-500/40 font-semibold text-xs transition shadow flex items-center justify-center space-x-2 font-tech">
+          <span>Revelar Evaluación de Impacto</span>
+        </button>
+
+        <button id="reset-votes-btn" class="w-full py-2 px-3 rounded-lg bg-slate-800 hover:bg-red-950/40 text-slate-400 hover:text-red-400 text-xs font-medium border border-slate-700 hover:border-red-800/50 transition">
+          Reiniciar Votos de Este Caso
+        </button>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <script>
+    const DILEMAS = [
+      {
+        id: 1,
+        tag: "Episodio 1 · Transhumanismo y Conciencia",
+        title: "La 'transhumanidad' de Bethany: ¿Optimización o riesgo existencial?",
+        desc: "Bethany confiesa a sus padres que busca deshacerse de su cuerpo biológico para existir como un patrón de datos en la nube. Plantea prescindir de las limitaciones físicas de la carne mediante intervenciones tecnológicas sucesivas.",
+        options: [
+          { key: 'A', text: "Permitir la transición si maximiza su bienestar personal y reduce el sufrimiento asociado a su cuerpo físico." },
+          { key: 'B', text: "Frenar la intervención porque los riesgos irreversibles sobre la salud mental y la pérdida de cohesión comunitaria superan los beneficios individuales." },
+          { key: 'C', text: "Someter las tecnologías neuronales a una estricta regulación de seguridad pública para evitar monopolios corporativos sobre la mente." }
+        ],
+        barleyTitle: "Balance entre autonomía tecnológica y daño irreversible",
+        barleyText: "El valor de cualquier tecnología radica en el incremento neto de bienestar que produce. Cuando el desprecio por la vulnerabilidad física se traduce en mutilación o sometimiento a plataformas privadas sin garantías, la suma total de sufrimiento colectivo tiende a dispararse por encima del alivio prometido."
+      },
+      {
+        id: 2,
+        tag: "Episodio 1 · Discurso Público y Cohesión",
+        title: "El populismo de Viv Rook: ¿Libertad irrestricta o contención del daño?",
+        desc: "Vivienne Rook gana millones de simpatizantes en televisión al despreciar los conflictos geopolíticos y afirmar que la prioridad exclusiva debe ser resolver molestias urbanas inmediatas, dinamitando la deliberación política tradicional.",
+        options: [
+          { key: 'A', text: "Permitir el libre flujo del discurso para que la sociedad procese el descontento y determine qué ideas tienen utilidad práctica." },
+          { key: 'B', text: "Establecer filtros institucionales que frenen mensajes cuya simplificación destructiva degrade la convivencia pacífica." },
+          { key: 'C', text: "Canalizar los recursos del Estado a desmentir activamente narrativas engañosas para mitigar el engaño masivo sin censura previa." }
+        ],
+        barleyTitle: "Cálculo de la erosión democrática",
+        barleyText: "Normalizar la apatía y el desprecio hacia el dolor ajeno para ganar votos genera un efecto en cascada: debilita las salvaguardas que protegen a las mayorías de abusos futuros. El balance general empeora para toda la comunidad."
+      },
+      {
+        id: 3,
+        tag: "Episodio 1 · Futuro y Nuevas Generaciones",
+        title: "Traer una vida a un entorno en declive acelerado",
+        desc: "Frente a noticias de rearme atómico y degradación ambiental, Daniel reflexiona con angustia sobre la responsabilidad de tener descendencia cuando el futuro augura crisis sistémicas recurrentes.",
+        options: [
+          { key: 'A', text: "Desincentivar la natalidad para evitar exponer a nuevas personas a un sufrimiento probable y reducir la presión ecológica global." },
+          { key: 'B', text: "Fomentar la crianza porque cada generación aporta el capital humano indispensable para revertir las crisis y sostener el bienestar común." },
+          { key: 'C', text: "Garantizar protección prioritaria a quienes ya existen antes de promover la llegada de nuevas vidas a entornos desprotegidos." }
+        ],
+        barleyTitle: "Evaluación de vidas posibles frente a recursos decrecientes",
+        barleyText: "La decisión de engendrar afecta tanto a la calidad de vida de quien nace como al balance de recursos del conjunto social. Evitar el sufrimiento extremo previsible es tan prioritario como preservar el tejido humano que cuida a los ancianos y mantiene el bienestar operativo."
+      },
+      {
+        id: 4,
+        tag: "Episodio 1 · Tensión Nuclear y Estabilidad",
+        title: "El impacto en Hong Sha: Disuasión de poder vs. Seguridad civil",
+        desc: "Una orden unilateral detona una ojiva nuclear en una isla artificial en el mar del sur de China. En Gran Bretaña, millones de familias quedan a merced de sirenas de emergencia y desabastecimiento inmediato.",
+        options: [
+          { key: 'A', text: "El desarme multilateral inmediato es la única política racional que elimina la amenaza de catástrofe existencial irreversible." },
+          { key: 'B', text: "El uso táctico medido previene invasiones de mayor escala que causarían una mortandad humana aún más catastrófica." },
+          { key: 'C', text: "Priorizar de inmediato presupuestos civiles de refugio y suministros para blindar al mayor número posible de familias ante el impacto bélico." }
+        ],
+        barleyTitle: "El riesgo existencial como el mayor multiplicador de daño",
+        barleyText: "Una sola decisión bélica irresponsable puede borrar décadas de prosperidad médica y alimentaria para millones de inocentes. La reducción de la probabilidad de una guerra total debe pesar siempre más que cualquier ganancia territorial o prestigio geoestratégico temporal."
+      },
+      {
+        id: 5,
+        tag: "Episodio 2 · Asilo y Supervivencia",
+        title: "La regularización de Viktor Goraya: Vidas en riesgo vs. Control burocrático",
+        desc: "Viktor afronta una deportación inminente hacia un país donde sufrió torturas por su orientación sexual, debido al endurecimiento reglamentario de la política de asilo británica.",
+        options: [
+          { key: 'A', text: "Garantizar asilo a quien enfrente daño físico severo para maximizar la preservación de vidas humanas inocentes." },
+          { key: 'B', text: "Sostener cuotas rígidas para evitar el colapso organizativo de los sistemas asistenciales que cubren a los residentes locales." },
+          { key: 'C', text: "Facilitar vías rápidas de inserción sociolaboral para que las personas refugiadas generen valor directo para la comunidad que las acoge." }
+        ],
+        barleyTitle: "Ponderación del daño físico irreparable",
+        barleyText: "El dolor insoportable de la tortura y la muerte violenta tiene un peso negativo incalculable frente al coste burocrático asumible de tramitar una acogida. Proteger a personas perseguidas evita la máxima pérdida posible de bienestar."
+      },
+      {
+        id: 6,
+        tag: "Episodio 2 · Vínculos Familiares y Socorro",
+        title: "La acogida clandestina: Prioridad conyugal vs. Salvamento de una vida",
+        desc: "Daniel compromete su estabilidad económica, su matrimonio con Ralph y su seguridad legal para albergar y proteger a Viktor frente a las redadas policiales.",
+        options: [
+          { key: 'A', text: "Proteger una vida en riesgo inminente supera con creces el dolor de una ruptura matrimonial o el riesgo a sanciones legales." },
+          { key: 'B', text: "Canalizar el socorro mediante redes solidarias comunitarias para no quebrar los compromisos de estabilidad con la propia familia." },
+          { key: 'C', text: "Priorizar la lealtad hacia la pareja y el hogar, evitando decisiones unilaterales que arrastran a seres cercanos a la ruina legal." }
+        ],
+        barleyTitle: "La distribución del socorro y la minimización del perjuicio colateral",
+        barleyText: "Socorrer a quien está al borde del abismo es éticamente imperioso, pero debe gestionarse procurando no generar un reguero de desdicha involuntaria a su paso. La acción individual más beneficiosa es la que rescata sin destruir la vida de terceros."
+      },
+      {
+        id: 7,
+        tag: "Episodio 2 · Biometría y Mercado Negro",
+        title: "El implante de Bethany: Sanidad clandestina vs. Seguridad comunitaria",
+        desc: "Bethany se implanta tecnología de comunicación bajo la piel en una clínica que opera al margen de la sanidad formal, exponiéndose a filtraciones de datos y lesiones neurológicas graves.",
+        options: [
+          { key: 'A', text: "Integrar y regularizar los implantes en el sistema sanitario para neutralizar el negocio clandestino y asegurar condiciones higiénicas." },
+          { key: 'B', text: "Clausurar y penalizar con dureza estas clínicas para desincentivar una práctica de alto riesgo para la integridad biológica juvenil." },
+          { key: 'C', text: "Exigir que toda biotecnología sea de acceso abierto y libre de monitoreo comercial para proteger la privacidad mental de la población." }
+        ],
+        barleyTitle: "Reducción de daños en la innovación biomédica",
+        barleyText: "Prohibir una tecnología en auge suele desplazar a los usuarios hacia el mercado clandestino, multiplicando el daño físico. Regular y transparentar minimiza las secuelas sanitarias y el lucro de operadores sin escrúpulos."
+      },
+      {
+        id: 8,
+        tag: "Episodio 3 · Estabilidad Económica y Rescate",
+        title: "La quiebra de depósitos: ¿Rescate financiero o auxilio a los hogares?",
+        desc: "El desplome repentino del sistema bancario fulmina los fondos de miles de familias como los ahorros de Stephen y Celeste, mientras las ayudas públicas se orientan a refinanciar a entidades bancarias.",
+        options: [
+          { key: 'A', text: "Dirigir el rescate público a garantizar el sustento de los hogares para evitar la caída masiva en la indigencia de la población trabajadora." },
+          { key: 'B', text: "Sostener en primer lugar a los nodos bancarios sistémicos para impedir un colapso general de la circulación monetaria y del empleo." },
+          { key: 'C', text: "Exigir que los directivos asuman las pérdidas con su patrimonio para compensar directamente el daño sufrido por las familias ahorradoras." }
+        ],
+        barleyTitle: "La utilidad marginal del dinero y el sustento familiar",
+        barleyText: "Una libra perdida por una familia trabajadora supone la diferencia entre comer o caer en la exclusión, mientras que en la cúpula financiera solo representa un ajuste contable. Salvar a las bases maximiza el bienestar real de la sociedad."
+      },
+      {
+        id: 9,
+        tag: "Episodio 3 · Plataformas Laborales y Precariedad",
+        title: "La economía de reparto: ¿Solución de emergencia o agotamiento general?",
+        desc: "Stephen recurre a enlazar múltiples encargos en bicicleta y aplicaciones de mensajería para sostener la manutención familiar a costa de jornadas extenuantes y riesgos de atropello sin cobertura.",
+        options: [
+          { key: 'A', text: "Establecer estándares laborales estrictos que aseguren salarios dignos y descanso, reduciendo la siniestralidad y el agotamiento físico." },
+          { key: 'B', text: "Mantener la máxima flexibilidad para que personas en desempleo súbito tengan siempre una fuente de ingresos para no morir de hambre." },
+          { key: 'C', text: "Implementar un ingreso mínimo vital que dé poder de negociación a los trabajadores frente a la explotación de las aplicaciones." }
+        ],
+        barleyTitle: "Sostenibilidad de la fuerza de trabajo y salud colectiva",
+        barleyText: "El trabajo precario ofrece liquidez inmediata a corto plazo, pero a medio plazo genera costes sanitarios enormes y reduce la productividad de la sociedad. Proteger al trabajador optimiza el rendimiento general y previene la exclusión crónica."
+      },
+      {
+        id: 10,
+        tag: "Episodio 3 · Participación Política y Criterio",
+        title: "La propuesta de filtrar el voto: ¿Capacidad técnica o derecho igualitario?",
+        desc: "Viv Rook defiende limitar el derecho de voto a quienes superen un examen de cociente intelectual, argumentando que decisiones complejas no pueden dejarse en manos de electores desinformados.",
+        options: [
+          { key: 'A', text: "Mantener el sufragio universal universal como la única barrera real para evitar que una casta instruida legisle en su propio provecho." },
+          { key: 'B', text: "Incentivar programas masivos de formación cívica y deliberativa para mejorar la calidad media de las decisiones democráticas." },
+          { key: 'C', text: "Implementar comités asesores de expertos independientes que evalúen el impacto real de las leyes antes de su aprobación electoral." }
+        ],
+        barleyTitle: "La distribución del poder frente a la tiranía de las élites",
+        barleyText: "Excluir a sectores de la población de la toma de decisiones siempre resulta en que sus necesidades son ignoradas por quienes ostentan el poder. El sufragio igualitario maximiza la probabilidad de que las leyes atiendan a la mayoría y no al privilegio de unos pocos."
+      },
+      {
+        id: 11,
+        tag: "Episodio 4 · Tráfico Clandestino y Vías Legales",
+        title: "El cruce del Canal de la Mancha: Financiación de mafias vs. Salvarse del horror",
+        desc: "Tras cerrarse las fronteras y expulsar a Viktor hacia España, Daniel y él pagan una suma abusiva a redes clandestinas para cruzar el mar en una embarcación precaria con decenas de personas.",
+        options: [
+          { key: 'A', text: "Habilitar canales seguros y legales de solicitud de asilo para erradicar el lucro de las mafias y evitar muertes evitables en el mar." },
+          { key: 'B', text: "Intervenir con contundencia sobre las rutas ilegales para disuadir a las familias de pagar a traficantes y exponerse a naufragios letales." },
+          { key: 'C', text: "Despenalizar el auxilio civil humanitario para que equipos de rescate reduzcan a cero los fallecimientos en aguas internacionales." }
+        ],
+        barleyTitle: "El balance letal de la militarización fronteriza",
+        barleyText: "Cerrar las rutas formales no detiene la desesperación; simplemente eleva el precio de los traficantes y la probabilidad de muertes en alta mar. Crear vías legales protege vidas humanas y reduce el poder del crimen organizado."
+      },
+      {
+        id: 12,
+        tag: "Episodio 4 · Heroísmo Individual y Destrucción Familiar",
+        title: "La muerte de Daniel en el mar: ¿Sacrificio admirable o error de cálculo?",
+        desc: "La balsa naufraga antes de alcanzar la costa de Dover. Daniel muere ahogado socorriendo a otros en el agua; Viktor llega exhausto a Manchester solo y Daniel deja a su familia rota de dolor.",
+        options: [
+          { key: 'A', text: "La entrega de Daniel refleja la máxima solidaridad: arriesgar la propia vida por salvar a quienes no tienen amparo." },
+          { key: 'B', text: "La acción supuso un coste devastador: una muerte prematura que desoló a su familia sin transformar las causas de la crisis migratoria." },
+          { key: 'C', text: "La pérdida evidencia que la buena voluntad aislada es insuficiente frente a leyes letales que deben ser reformadas colectivamente." }
+        ],
+        barleyTitle: "Eficacia y proporcionalidad en la acción moral",
+        barleyText: "El valor de un sacrificio debe medirse por el bienestar duradero que engendra. Cuando el esfuerzo individual resulta en la pérdida de vidas y en un dolor inmenso para el entorno, la lección es que la solución debe ser institucional y colectiva, no mártir."
+      },
+      {
+        id: 13,
+        tag: "Episodio 4 · Desinformación y Confianza Pública",
+        title: "Conspiranoia y rechazo a la medicina comunitaria",
+        desc: "Fran pierde la confianza en los consensos científicos y se vuelca en movimientos que rechazan tratamientos preventivos básicos, alegando conspiraciones farmacéuticas globales.",
+        options: [
+          { key: 'A', text: "Priorizar la obligatoriedad de medidas preventivas esenciales cuando esté en juego evitar brotes que saturen los hospitales públicos." },
+          { key: 'B', text: "Erradicar la corrupción y el secretismo de los laboratorios para reconstruir la credibilidad indispensable de la población en la sanidad." },
+          { key: 'C', text: "Invertir en campañas de pedagogía transparente que muestren empíricamente el descenso de mortalidad atribuible a los tratamientos." }
+        ],
+        barleyTitle: "La salud colectiva como bien común no negociable",
+        barleyText: "Una epidemia descontrolada por desconfianza colectiva destruye miles de vidas y paraliza la economía. Garantizar la inmunidad y la transparencia científica produce la mayor preservación de vida y sosiego para la comunidad entera."
+      },
+      {
+        id: 14,
+        tag: "Episodio 4 · Deber Testimonial y Agotamiento",
+        title: "El activismo de Edith ante la radiación terminal",
+        desc: "Edith regresa a casa con una dosis letal de radiación tras documentar el desastre de Hong Sha. Pese a los ruegos familiares para que descanse, decide emplear sus últimas semanas en movilizaciones de denuncia.",
+        options: [
+          { key: 'A', text: "Utilizar el tiempo restante para difundir testimonios que frenen futuras escaladas bélicas genera un impacto positivo que trasciende la propia vida." },
+          { key: 'B', text: "Dedicar los últimos días al sosiego y a la reconciliación familiar ahorra un sufrimiento innecesario tanto al enfermo como a sus seres queridos." },
+          { key: 'C', text: "Combinar el cuidado paliativo con la grabación planificada de su testimonio para que sus ideas perduren sin desgastar su salud restante." }
+        ],
+        barleyTitle: "Maximizar el alcance del testimonio frente a la agonía",
+        barleyText: "El valor de la existencia no reside en prolongar la respiración, sino en el beneficio que las acciones dejan en el mundo. Si el testimonio de Edith ayuda a evitar futuros crímenes nucleares, el saldo de su decisión es intensamente positivo para millones de personas."
+      },
+      {
+        id: 15,
+        tag: "Episodio 4 · Responsabilidad Civil y Apatía",
+        title: "La sentencia de Muriel: ¿Somos cómplices de la degradación democrática?",
+        desc: "En la mesa familiar, Muriel acusa a todos los presentes de ser responsables de la deriva autoritaria por haber elegido productos baratos hechos con explotación y haber tolerado la crueldad ajena mientras no llamara a su puerta.",
+        options: [
+          { key: 'A', text: "Muriel señala con lucidez que la suma de pequeñas comodidades cotidianas egoístas es la causa que habilita el colapso de los derechos comunes." },
+          { key: 'B', text: "La culpa no debe cargarse sobre los ciudadanos exhaustos por el día a día, sino sobre los poderes económicos que imponen el modelo de consumo." },
+          { key: 'C', text: "La única vía para revertir el balance negativo de la sociedad es el compromiso ético activo en la toma de decisiones ciudadanas colectivas." }
+        ],
+        barleyTitle: "La corresponsabilidad en el balance moral del sistema",
+        barleyText: "La calidad de una sociedad es el resultado agregado de las elecciones de sus integrantes. Cuando la mayoría elige ignorar el sufrimiento lejano a cambio de bienes baratos y apatía, las condiciones que garantizan la propia seguridad y la de los hijos terminan desmoronándose."
+      }
+    ];
+
+    const TOPIC = 'years_and_years_moral_debate_live_v2';
+    const NTFY_URL = `https://ntfy.sh/${TOPIC}`;
+
+    let deviceId = localStorage.getItem('yy_device_id_v2');
+    if (!deviceId) {
+      deviceId = 'yy_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('yy_device_id_v2', deviceId);
+    }
+
+    // Estructura de votos por caso en memoria
+    let caseVotes = {};
+    for (let i = 0; i < DILEMAS.length; i++) {
+      caseVotes[i] = { A: 0, B: 0, C: 0, voters: new Set() };
+    }
+
+    // Registro de votos emitidos por este alumno concreto
+    let myVotedCases = JSON.parse(localStorage.getItem('yy_my_votes') || '{}');
+
+    let state = {
+      role: 'projector',
+      currentDilemmaIndex: 0,
+      analysisVisible: false
+    };
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestedRole = urlParams.get('rol');
+    if (requestedRole === 'estudiante') {
+      state.role = 'student';
+    } else if (requestedRole === 'proyector') {
+      state.role = 'projector';
+    } else {
+      state.role = window.innerWidth < 768 ? 'student' : 'projector';
+    }
+
+    function applyRoleUI() {
+      const roleBadge = document.getElementById('role-badge');
+      const teacherControls = document.getElementById('teacher-controls');
+      const studentActions = document.getElementById('student-actions');
+      const sideColumn = document.getElementById('side-column');
+      const mainColumn = document.getElementById('main-column');
+
+      if (state.role === 'student') {
+        roleBadge.innerText = 'Modo Alumno';
+        roleBadge.className = 'px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-950 text-emerald-400 border border-emerald-500/30';
+        teacherControls.classList.add('hidden');
+        studentActions.classList.remove('hidden');
+        sideColumn.classList.add('hidden');
+        mainColumn.classList.remove('lg:col-span-8');
+        mainColumn.classList.add('lg:col-span-12');
+      } else {
+        roleBadge.innerText = 'Modo Proyector';
+        roleBadge.className = 'px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-950 text-rose-400 border border-rose-500/30';
+        teacherControls.classList.remove('hidden');
+        studentActions.classList.add('hidden');
+        sideColumn.classList.remove('hidden');
+        mainColumn.classList.add('lg:col-span-8');
+        mainColumn.classList.remove('lg:col-span-12');
+      }
+    }
+
+    function renderCurrentDilemma() {
+      const idx = state.currentDilemmaIndex;
+      const d = DILEMAS[idx];
+
+      // Navegación
+      document.getElementById('nav-case-indicator').innerText = `Caso ${idx + 1} / ${DILEMAS.length}`;
+      document.getElementById('nav-prev-btn').disabled = (idx === 0);
+      document.getElementById('nav-next-btn').disabled = (idx === DILEMAS.length - 1);
+
+      document.getElementById('dilemma-tag').innerText = `Caso ${d.id} de ${DILEMAS.length} · ${d.tag}`;
+      document.getElementById('dilemma-title').innerText = d.title;
+      document.getElementById('dilemma-desc').innerText = `"${d.desc}"`;
+
+      document.getElementById('analysis-title').innerText = d.barleyTitle;
+      document.getElementById('analysis-text').innerText = d.barleyText;
+      const analysisCard = document.getElementById('analysis-card');
+      if (state.analysisVisible) {
+        analysisCard.classList.remove('hidden');
+      } else {
+        analysisCard.classList.add('hidden');
+      }
+
+      const votes = caseVotes[idx] || { A: 0, B: 0, C: 0 };
+      const totalVotes = votes.A + votes.B + votes.C;
+      document.getElementById('total-votes-count').innerText = `${totalVotes} voto${totalVotes === 1 ? '' : 's'} en directo`;
+
+      const myVoteForThisCase = myVotedCases[idx] || null;
+
+      const container = document.getElementById('options-container');
+      container.innerHTML = '';
+
+      d.options.forEach(opt => {
+        const count = votes[opt.key] || 0;
+        const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
+        const isSelected = (myVoteForThisCase === opt.key) || (state.pendingOption === opt.key);
+
+        const card = document.createElement('div');
+        card.className = `p-4 sm:p-5 rounded-xl border transition-all cursor-pointer relative overflow-hidden ${
+          isSelected 
+            ? 'border-rose-500 bg-rose-950/40 shadow-lg ring-2 ring-rose-500/40' 
+            : 'border-slate-800 bg-slate-900/90 hover:border-slate-700'
+        }`;
+
+        card.innerHTML = `
+          <div class="absolute left-0 top-0 bottom-0 bg-rose-950/50 transition-all duration-500 ease-out z-0 pointer-events-none" style="width: ${state.role === 'projector' ? pct : 0}%"></div>
+          
+          <div class="relative z-10 flex items-start justify-between">
+            <div class="flex items-start space-x-3 pr-4">
+              <span class="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-lg font-bold text-xs font-tech ${isSelected ? 'bg-rose-600 text-white' : 'bg-slate-800 text-slate-300'}">${opt.key}</span>
+              <p class="text-sm sm:text-base font-medium text-slate-200 leading-snug pt-0.5">${opt.text}</p>
+            </div>
+            
+            ${state.role === 'projector' ? `
+              <div class="flex flex-col items-end flex-shrink-0 pl-2">
+                <span class="text-base font-bold text-rose-400 font-tech">${pct}%</span>
+                <span class="text-[11px] text-slate-400">${count} voto${count === 1 ? '' : 's'}</span>
+              </div>
+            ` : ''}
+          </div>
+        `;
+
+        if (state.role === 'student') {
+          card.onclick = () => {
+            if (myVoteForThisCase) return; // ya votó en este caso
+            state.pendingOption = opt.key;
+            renderCurrentDilemma();
+          };
+        }
+
+        container.appendChild(card);
+      });
+
+      // Acciones del estudiante
+      const submitBtn = document.getElementById('submit-vote-btn');
+      const studentNextBtn = document.getElementById('student-next-btn');
+
+      if (state.role === 'student') {
+        if (myVoteForThisCase) {
+          submitBtn.disabled = true;
+          submitBtn.innerText = `✓ Ya votaste: Opción ${myVoteForThisCase}`;
+          submitBtn.className = 'w-full py-3.5 rounded-xl bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 font-bold text-sm shadow font-tech';
+          
+          if (idx < DILEMAS.length - 1) {
+            studentNextBtn.classList.remove('hidden');
+            document.getElementById('student-next-num').innerText = idx + 2;
+          } else {
+            studentNextBtn.classList.add('hidden');
+          }
+        } else {
+          studentNextBtn.classList.add('hidden');
+          submitBtn.disabled = !state.pendingOption;
+          submitBtn.innerText = state.pendingOption ? `Confirmar Postura ${state.pendingOption}` : 'Selecciona una postura arriba';
+          submitBtn.className = 'w-full py-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-base shadow-lg transition-all transform active:scale-98 disabled:opacity-50 font-tech';
+        }
+      }
+    }
+
+    function initQRCode() {
+      const qrTarget = document.getElementById('qrcode');
+      qrTarget.innerHTML = '';
+      
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.set('rol', 'estudiante');
+      const studentUrl = currentUrl.toString();
+
+      document.getElementById('qr-url-text').innerText = studentUrl;
+
+      new QRCode(qrTarget, {
+        text: studentUrl,
+        width: 170,
+        height: 170,
+        colorDark: "#020617",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
+
+    function sendRealtimeMsg(payload) {
+      fetch(NTFY_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: { 'Title': 'YY Sync' }
+      }).catch(err => console.error("Error al emitir:", err));
+    }
+
+    function startRealtimeListener() {
+      const eventSource = new EventSource(`${NTFY_URL}/sse`);
+      eventSource.onmessage = (event) => {
+        try {
+          const raw = JSON.parse(event.data);
+          if (raw.event !== 'message' || !raw.message) return;
+          const msg = JSON.parse(raw.message);
+
+          if (msg.type === 'VOTE') {
+            const idx = msg.dilemmaIndex;
+            if (!caseVotes[idx]) caseVotes[idx] = { A: 0, B: 0, C: 0, voters: new Set() };
+            
+            if (!caseVotes[idx].voters.has(msg.voterId)) {
+              caseVotes[idx].voters.add(msg.voterId);
+              caseVotes[idx][msg.option] = (caseVotes[idx][msg.option] || 0) + 1;
+              renderCurrentDilemma();
+              
+              if (state.role === 'projector') {
+                sendRealtimeMsg({
+                  type: 'CASE_STATE',
+                  dilemmaIndex: idx,
+                  votes: {
+                    A: caseVotes[idx].A,
+                    B: caseVotes[idx].B,
+                    C: caseVotes[idx].C
+                  }
+                });
+              }
+            }
+          } else if (msg.type === 'FORCE_DILEMMA') {
+            state.currentDilemmaIndex = msg.index;
+            state.pendingOption = null;
+            state.analysisVisible = false;
+            renderCurrentDilemma();
+          } else if (msg.type === 'TOGGLE_ANALYSIS') {
+            state.analysisVisible = msg.visible;
+            renderCurrentDilemma();
+          } else if (msg.type === 'RESET_VOTES') {
+            const idx = msg.dilemmaIndex;
+            caseVotes[idx] = { A: 0, B: 0, C: 0, voters: new Set() };
+            renderCurrentDilemma();
+          } else if (msg.type === 'CASE_STATE') {
+            const idx = msg.dilemmaIndex;
+            if (!caseVotes[idx]) caseVotes[idx] = { A: 0, B: 0, C: 0, voters: new Set() };
+            caseVotes[idx].A = msg.votes.A;
+            caseVotes[idx].B = msg.votes.B;
+            caseVotes[idx].C = msg.votes.C;
+            renderCurrentDilemma();
+          }
+        } catch(e) {}
+      };
+    }
+
+    // NAVEGACIÓN
+    function goToDilemma(index) {
+      if (index >= 0 && index < DILEMAS.length) {
+        state.currentDilemmaIndex = index;
+        state.pendingOption = null;
+        state.analysisVisible = false;
+        renderCurrentDilemma();
+      }
+    }
+
+    document.getElementById('nav-prev-btn').onclick = () => {
+      goToDilemma(state.currentDilemmaIndex - 1);
+    };
+
+    document.getElementById('nav-next-btn').onclick = () => {
+      goToDilemma(state.currentDilemmaIndex + 1);
+    };
+
+    document.getElementById('student-next-btn').onclick = () => {
+      goToDilemma(state.currentDilemmaIndex + 1);
+    };
+
+    // BOTONES PROYECTOR
+    document.getElementById('sync-all-students-btn').onclick = () => {
+      sendRealtimeMsg({ type: 'FORCE_DILEMMA', index: state.currentDilemmaIndex });
+    };
+
+    document.getElementById('reveal-analysis-btn').onclick = () => {
+      state.analysisVisible = !state.analysisVisible;
+      renderCurrentDilemma();
+      sendRealtimeMsg({ type: 'TOGGLE_ANALYSIS', visible: state.analysisVisible });
+    };
+
+    document.getElementById('reset-votes-btn').onclick = () => {
+      const idx = state.currentDilemmaIndex;
+      caseVotes[idx] = { A: 0, B: 0, C: 0, voters: new Set() };
+      renderCurrentDilemma();
+      sendRealtimeMsg({ type: 'RESET_VOTES', dilemmaIndex: idx });
+    };
+
+    // VOTO DEL ALUMNO
+    document.getElementById('submit-vote-btn').onclick = () => {
+      const idx = state.currentDilemmaIndex;
+      if (!state.pendingOption || myVotedCases[idx]) return;
+
+      const chosen = state.pendingOption;
+      myVotedCases[idx] = chosen;
+      localStorage.setItem('yy_my_votes', JSON.stringify(myVotedCases));
+
+      sendRealtimeMsg({
+        type: 'VOTE',
+        option: chosen,
+        voterId: deviceId,
+        dilemmaIndex: idx
+      });
+
+      state.pendingOption = null;
+      renderCurrentDilemma();
+    };
+
+    document.getElementById('toggle-role-btn').onclick = () => {
+      state.role = state.role === 'projector' ? 'student' : 'projector';
+      applyRoleUI();
+      renderCurrentDilemma();
+    };
+
+    applyRoleUI();
+    renderCurrentDilemma();
+    initQRCode();
+    startRealtimeListener();
+  </script>
+</body>
+</html>
